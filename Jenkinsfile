@@ -1,38 +1,18 @@
 pipeline {
     agent any
     stages {
-        stage('Build Application') {
+        stage('build') {
             steps {
-                sh 'mvn -f pom.xml clean package'
-            }
-            post {
-                success {
-                    echo "Now Archiving the Artifact"
-                    archiveArtifacts artifacts:'**/*.war'
-                }
+                echo "Compiling the java source code"
+                sh "javac Hello.java"
             }
         }
 
-        stage('Test Application') {
+        stage('run') {
             steps {
-                echo 'Testing the Application'
+                echo "Running the compiled java code"
+                sh "java Hello"
             }
         }
-
-        stage('Nexus Deploy') {
-            steps {
-                echo 'Deploying Artifacts to Nexus'
-            }
-        }
-
-        stage('Deploy to Staging Enviornment') {
-            steps {
-                script {
-                    deploy adapters: [tomcat9(credentialsId: 'Tomcat-Stage-Crdedentials', path: '', url: 'http://18.214.39.15:8080/')], contextPath: '/', onFailure: false, war: '**/*.war'
-
-                }
-            }
-        }
-
     }
 }
